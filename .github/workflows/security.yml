@@ -1,0 +1,53 @@
+name: Security Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 3 * * 1'
+
+jobs:
+  cargo-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Generate lockfile
+        run: cargo generate-lockfile
+      - name: Audit dependencies (RustSec)
+        uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  cargo-deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run cargo-deny (advisories, bans, licenses)
+        uses: EmbarkStudios/cargo-deny-action@v1
+
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: CycloneDX (Cargo)
+        run: |
+          cargo install cyclonedx-bom --locked
+          cyclonedx-bom -o sbom-cyclonedx-cargo.json
+      - name: SBOM (Syft) for repo
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: sbom-cyclonedx-syft.json
+      - name: Upload SBOMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sboms
+          path: |
+            sbom-cyclonedx-cargo.json
+            sbom-cyclonedx-syft.json
+

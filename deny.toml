@@ -1,0 +1,32 @@
+# cargo-deny configuration (baseline). Adjust as the project evolves.
+
+[advisories]
+severity-threshold = "medium"
+yanked = "warn"
+ignore = []
+
+[licenses]
+unlicensed = "deny"
+allow = [
+    "Apache-2.0",
+    "MIT",
+    "BSD-3-Clause",
+    "BSD-2-Clause",
+    "ISC",
+    "Unicode-3.0",
+]
+copyleft = "warn"
+confidence-threshold = 0.8
+exceptions = []
+
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+deny = []
+skip = []
+allow = []
+
+[sources]
+unknown-registry = "warn"
+unknown-git = "warn"
+

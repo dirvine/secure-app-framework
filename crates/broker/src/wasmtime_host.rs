@@ -123,11 +123,18 @@ mod impls {
             .map_err(|e| e.to_string())?;
 
         // Instantiate component
-        let (_instance, _exports) = bindings::App::instantiate(&mut store, &component, &linker)
+        let (exports, _instance) = bindings::App::instantiate(&mut store, &component, &linker)
             .map_err(|e| e.to_string())?;
 
-        // If the world exports entry functions, call them here (not defined yet).
-        Ok(())
+        // Call exported start function
+        match exports.call_start(&mut store) {
+            Ok(s) => {
+                // Print or log the returned string for demo
+                println!("component.start: {s}");
+                Ok(())
+            }
+            Err(e) => Err(e.to_string()),
+        }
     }
 }
 

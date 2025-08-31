@@ -29,4 +29,7 @@ world app {
     import log;
     import time;
     import rand;
+
+    // Minimal exported entry for exercising the component.
+    export start: func() -> string;
 }

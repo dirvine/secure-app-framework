@@ -1,5 +1,5 @@
 // WIT world definition (MVP sketch). Not yet wired to cargo-component.
-package saf:world;
+package saf:app;
 
 interface fs {
     /// List entries in a directory path within the preopened /workspace.

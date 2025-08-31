@@ -8,6 +8,10 @@ license = "Apache-2.0"
 saf-core = { path = "../core" }
 saf-policy = { path = "../policy" }
 saf-audit = { path = "../audit" }
+anyhow = { version = "1", optional = true }
+wasmtime = { version = "21", optional = true, default-features = false, features = ["component-model"] }
+wasmtime-wasi = { version = "21", optional = true }
+rand = { version = "0.8", optional = true }
 
 [[bin]]
 name = "broker"
@@ -15,5 +19,5 @@ path = "src/main.rs"
 
 [features]
 default = []
-# Placeholder feature for future Wasmtime integration; deps will be added when network is available.
-wasmtime-host = []
+# Wasmtime integration for running components
+wasmtime-host = ["dep:wasmtime", "dep:wasmtime-wasi", "dep:anyhow", "dep:rand"]

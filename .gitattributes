@@ -1,0 +1,9 @@
+* text=auto eol=lf
+
+# Normalize line endings for common text formats
+*.rs text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+

@@ -1,0 +1,7 @@
+// Placeholder WIT world definition for MVP.
+package saf:world;
+
+world app {
+    // Future: define fs, net, log, time, rand interfaces here.
+}
+

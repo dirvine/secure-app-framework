@@ -1,0 +1,19 @@
+target/
+dist/
+/.idea/
+/.vscode/
+*.log
+**/*.rs.bk
+Cargo.lock
+
+# Node/Tauri (future UI)
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+/.parcel-cache/
+/.turbo/
+/.next/
+
+# macOS
+.DS_Store
+

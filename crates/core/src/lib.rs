@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use std::collections::{BTreeSet, HashMap};
+// Collections used within tests; keep non-test code minimal.
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::path::{Component, Path};
@@ -129,6 +129,7 @@ pub fn fetch_json(ctx: &Context<'_>, url: &str) -> CoreResult<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::{BTreeSet, HashMap};
 
     struct MemLog;
     impl LogHost for MemLog {

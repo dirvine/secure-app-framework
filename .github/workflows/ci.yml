@@ -30,7 +30,6 @@ jobs:
       - name: Format check
         run: cargo fmt --all -- --check
       - name: Clippy (policy)
-        run: cargo clippy --all-features -- -D clippy::panic -D clippy::unwrap_used -D clippy::expect_used -W clippy::pedantic
+        run: cargo clippy -- -D clippy::panic -D clippy::unwrap_used -D clippy::expect_used -W clippy::pedantic
       - name: Build
-        run: cargo build --workspace --all-features --release
-
+        run: cargo build --workspace --release

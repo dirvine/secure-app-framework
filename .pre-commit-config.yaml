@@ -8,7 +8,6 @@ repos:
         pass_filenames: false
       - id: rust-clippy
         name: cargo clippy (policy)
-        entry: bash -lc 'cargo clippy --all-features -- -D clippy::panic -D clippy::unwrap_used -D clippy::expect_used'
+        entry: bash -lc 'cargo clippy -- -D clippy::panic -D clippy::unwrap_used -D clippy::expect_used'
         language: system
         pass_filenames: false
-

@@ -6,18 +6,32 @@
 
 #[cfg(feature = "wasmtime-host")]
 mod impls {
-    // When enabling this feature, add real dependencies:
-    // wasmtime = { version = "*", features = ["component-model"] }
-    // wasmtime-wasi = "*"
-    // wit-bindgen = "*" (or cargo-component generated bindings)
-
     use super::*;
+    use std::fs;
     use std::path::Path;
+    use wasmtime::component::{Component, Linker};
+    use wasmtime::{Config, Engine, Store};
 
-    pub fn run_component(_component_path: &Path, _ctx: CoreCtx) -> Result<(), String> {
-        // TODO: load component, instantiate with host shims for fs/net/log/time/rand,
-        // and drive the test app world entrypoints.
-        Err("wasmtime integration not implemented".to_string())
+    // Minimal loader to validate component parsing. Host bindings come next.
+    pub fn run_component(component_path: &Path, _core: CoreCtx) -> Result<(), String> {
+        let mut cfg = Config::new();
+        cfg.wasm_component_model(true);
+
+        let engine = Engine::new(&cfg).map_err(|e| e.to_string())?;
+        if !component_path.exists() {
+            return Err(format!("component not found: {}", component_path.display()));
+        }
+
+        // Basic read for clearer errors before Wasmtime parse
+        let bytes = fs::read(component_path).map_err(|e| e.to_string())?;
+        let _component = Component::from_binary(&engine, &bytes).map_err(|e| e.to_string())?;
+
+        // Placeholder store and linker; no instantiation yet
+        struct HostState;
+        let mut store = Store::new(&engine, HostState);
+        let _linker: Linker<HostState> = Linker::new(&engine);
+
+        Err("component loaded; host bindings not implemented yet".to_string())
     }
 }
 

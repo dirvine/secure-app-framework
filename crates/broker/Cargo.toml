@@ -15,5 +15,5 @@ path = "src/main.rs"
 
 [features]
 default = []
-# Placeholder feature for future Wasmtime integration; no deps added yet to avoid network.
+# Placeholder feature for future Wasmtime integration; deps will be added when network is available.
 wasmtime-host = []

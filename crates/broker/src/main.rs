@@ -6,6 +6,7 @@ use std::path::{Component, Path, PathBuf};
 use saf_audit::AuditLog;
 use saf_core::{fetch_json, list_dir as core_list_dir, Context, FsHost, LogHost, NetHost};
 use saf_policy::Policy;
+mod wasmtime_host;
 
 fn sanitize_rel_path(path: &str) -> Option<String> {
     let p = Path::new(path);
@@ -96,10 +97,15 @@ fn main() {
     // Minimal CLI: broker [--workspace <path>]
     let mut args = env::args().skip(1);
     let mut workspace = env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    let mut run_component: Option<PathBuf> = None;
     while let Some(a) = args.next() {
         if a == "--workspace" {
             if let Some(p) = args.next() {
                 workspace = PathBuf::from(p);
+            }
+        } else if a == "--run-component" {
+            if let Some(p) = args.next() {
+                run_component = Some(PathBuf::from(p));
             }
         }
     }
@@ -127,6 +133,25 @@ fn main() {
         log: &log,
     };
     log.event("broker.start");
+
+    if let Some(comp) = run_component {
+        #[cfg(feature = "wasmtime-host")]
+        {
+            let core_ctx = wasmtime_host::CoreCtx { ctx };
+            match wasmtime_host::run_component(&comp, core_ctx) {
+                Ok(()) => return,
+                Err(e) => {
+                    eprintln!("component error: {e}");
+                    return;
+                }
+            }
+        }
+        #[cfg(not(feature = "wasmtime-host"))]
+        {
+            eprintln!("--run-component requires building broker with the 'wasmtime-host' feature");
+            return;
+        }
+    }
 
     // Demo: list workspace root
     match core_list_dir(&ctx, "") {

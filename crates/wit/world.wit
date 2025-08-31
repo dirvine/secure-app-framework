@@ -1,7 +1,32 @@
-// Placeholder WIT world definition for MVP.
+// WIT world definition (MVP sketch). Not yet wired to cargo-component.
 package saf:world;
 
-world app {
-    // Future: define fs, net, log, time, rand interfaces here.
+interface fs {
+    /// List entries in a directory path within the preopened /workspace.
+    list-dir: func(path: string) -> list<string>;
+    /// Read a UTF-8 text file from a path within /workspace.
+    read-text: func(path: string) -> string;
+    /// Write a UTF-8 text file into a path within /workspace (create or overwrite).
+    write-text: func(path: string, content: string);
 }
 
+interface net {
+    /// Fetch a URL (TLS only, allowlist enforced by host) and return response body as UTF-8.
+    get-text: func(url: string) -> string;
+}
+
+interface log {
+    /// Append an audit event (host will hash-chain).
+    event: func(message: string);
+}
+
+interface time { now-unix-seconds: func() -> u64; }
+interface rand { fill: func(len: u32) -> list<u8>; }
+
+world app {
+    import fs;
+    import net;
+    import log;
+    import time;
+    import rand;
+}

@@ -1,0 +1,21 @@
+[package]
+name = "saf-component-demo"
+version = "0.0.1"
+edition = "2021"
+license = "Apache-2.0"
+
+[dependencies]
+wit-bindgen-rt = "0.41"
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[package.metadata.component]
+package = "saf:component-demo"
+
+[package.metadata.component.target]
+path = "../wit"
+world = "app"
+
+[package.metadata.component.dependencies]

@@ -1,0 +1,57 @@
+secure-app-framework/crates/ui/src-tauri/tauri.conf.json
+{
+  "productName": "Secure App Framework",
+  "version": "0.1.0",
+  "identifier": "com.github.divine.secure-app-framework",
+  "build": {
+    "beforeBuildCommand": "",
+    "beforeDevCommand": "",
+    "devPath": "../src",
+    "distDir": "../src",
+    "withGlobalTauri": false
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "createUpdaterBundle": false,
+    "category": "Productivity",
+    "shortDescription": "Secure application framework with WASM sandboxing",
+    "longDescription": "A secure application framework that runs business logic in WebAssembly components with capability-based security and audit logging.",
+    "copyright": "Copyright © 2024 Secure App Framework Contributors",
+    "deb": {
+      "depends": []
+    },
+    "macOS": {
+      "frameworks": [],
+      "minimumSystemVersion": "",
+      "exceptionDomain": "",
+      "signingIdentity": null,
+      "providerShortName": null,
+      "entitlements": null
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": null
+    }
+  },
+  "plugins": {
+    "updater": {
+      "active": false
+    }
+  },
+  "security": {
+    "csp": null
+  },
+  "windows": [
+    {
+      "fullscreen": false,
+      "resizable": true,
+      "title": "Secure App Framework",
+      "width": 1200,
+      "height": 800,
+      "minWidth": 800,
+      "minHeight": 600
+    }
+  ]
+}

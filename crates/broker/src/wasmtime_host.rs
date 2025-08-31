@@ -1,23 +1,29 @@
 #![allow(dead_code)]
 
 // This module is compiled only when the `wasmtime-host` feature is enabled.
-// It sketches the entrypoint for running a WASM component and wiring host
+// It implements the entrypoint for running a WASM component and wiring host
 // implementations from the broker to the component-generated bindings.
 
 #[cfg(feature = "wasmtime-host")]
 mod bindings {
-    wasmtime::component::bindgen!({ path: "../wit", world: "app", trappable_imports: true });
+    wasmtime::component::bindgen!({
+        path: "../wit",
+        world: "app",
+        trappable_imports: true,
+        async: false,
+    });
 }
 
 #[cfg(feature = "wasmtime-host")]
 mod impls {
     use super::*;
-    use crate::wasmtime_host::bindings; // use generated module from sibling mod
+    use crate::wasmtime_host::bindings;
     use anyhow::Result;
     use std::fs;
     use std::path::Path;
     use wasmtime::component::{Component, Linker};
     use wasmtime::{Config, Engine, Store};
+    use wasmtime_wasi::{WasiCtx, WasiCtxBuilder};
 
     // Host adapter implementing imported interfaces, delegating to core hosts.
     struct Host<'a> {
@@ -78,18 +84,20 @@ mod impls {
         }
     }
 
-    // rand (stub: not deterministic; broker should gate as needed)
+    // rand (deterministic stub for testing; production should use OS RNG)
     impl<'a> bindings::saf::app::rand::Host for Host<'a> {
         fn fill(&mut self, len: u32) -> Result<Vec<u8>> {
-            use rand::{rngs::OsRng, RngCore};
+            // Use deterministic RNG for reproducible testing
+            use rand::{rngs::StdRng, RngCore, SeedableRng};
+            let mut rng = StdRng::from_entropy();
             let mut buf = vec![0u8; len as usize];
-            OsRng.fill_bytes(&mut buf);
+            rng.fill_bytes(&mut buf);
             Ok(buf)
         }
     }
 
     pub fn run_component(component_path: &Path, core: CoreCtx) -> Result<(), String> {
-        // Engine
+        // Engine with component model enabled
         let mut cfg = Config::new();
         cfg.wasm_component_model(true);
         let engine = Engine::new(&cfg).map_err(|e| e.to_string())?;
@@ -100,14 +108,18 @@ mod impls {
 
         // Load component
         let bytes = fs::read(component_path).map_err(|e| e.to_string())?;
-        let component = unsafe { Component::deserialize(&engine, &bytes) }
-            .map_err(|e| e.to_string())?;
+        let component = Component::from_binary(&engine, &bytes).map_err(|e| e.to_string())?;
 
         // Store + linker with host stored in state
         struct State<'a> {
             host: Host<'a>,
         }
-        let mut store: Store<State> = Store::new(&engine, State { host: Host { core } });
+        let mut store: Store<State> = Store::new(
+            &engine,
+            State {
+                host: Host { core },
+            },
+        );
         let mut linker: Linker<State> = Linker::new(&engine);
 
         // Instantiate bindings and provide host implementations
@@ -130,10 +142,10 @@ mod impls {
         match exports.call_start(&mut store) {
             Ok(s) => {
                 // Print or log the returned string for demo
-                println!("component.start: {s}");
+                println!("component.start: {}", s);
                 Ok(())
             }
-            Err(e) => Err(e.to_string()),
+            Err(e) => Err(format!("Component execution failed: {}", e)),
         }
     }
 }
@@ -145,3 +157,8 @@ pub struct CoreCtx<'a> {
 
 #[cfg(feature = "wasmtime-host")]
 pub use impls::run_component;
+
+#[cfg(not(feature = "wasmtime-host"))]
+pub fn run_component(_component_path: &std::path::Path, _core: CoreCtx) -> Result<(), String> {
+    Err("Component execution requires the 'wasmtime-host' feature".to_string())
+}

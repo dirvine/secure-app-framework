@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure App Framework</title>
+    <style>
+        *</style> {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: #2563eb;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .main {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 0.5rem;
+        }
+
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn.secondary {
+            background: #6b7280;
+        }
+
+        .btn.secondary:hover {
+            background: #4b5563;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .file-list {
+            list-style: none;
+        }
+
+        .file-list li {
+            padding: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .file-list li:hover {
+            background: #f9fafb;
+        }
+
+        .file-list li.directory {
+            font-weight: 500;
+            color: #2563eb;
+        }
+
+        .audit-log {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 0.5rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .audit-entry {
+            margin-bottom: 0.25rem;
+            padding: 0.25rem;
+            border-left: 3px solid #2563eb;
+            background: white;
+        }
+
+        .status {
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .status.info {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .workspace-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .workspace-info p {
+            margin-bottom: 0.5rem;
+        }
+
+        .workspace-info strong {
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔒 Secure App Framework</h1>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="section">
+                <h2>Workspace</h2>
+                <button class="btn" onclick="selectWorkspace()">Select Workspace</button>
+                <div id="</body></h1></h2>workspace-info" class="workspace-info" style="display: none;">
+                    <p><strong>Path:</strong> <span id="workspace-path"></span></p>
+                    <p><strong>ID:</strong> <span id="workspace-id"></span></p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Files</h2>
+                <button class="btn" onclick="listDirectory('')">List Root</button>
+                <ul id="file-list" class="file-list"></ul>
+            </div>
+
+            <div class="section">
+                <h2>Network</h2>
+                <div class="input-group">
+                    <label for="url-input">URL:</label></strong></h2></h2>
+                    <input type="text" id="url-input" placeholder="https://example.org/data.json" value="https://httpbin.org/json">
+                </div>
+                <button class="btn" onclick="fetchUrl()">Fetch URL</button>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="section">
+                <h2>File Content</h2>
+                <div id="file-content" style="white-space: pre-wrap; font-family: monospace; background: #f8fafc; padding: 1rem; border-radius: 4px; min-height: 200px;"></div>
+            </div>
+
+            <div class="section">
+                <h2></h2>Network Response</h2>
+                <div id="network-response" style="white-space: pre-wrap; font-family: monospace; background: #f8fafc; padding: 1rem; border-radius: 4px; min-height: 200px;"></div>
+            </div>
+
+            <div class="section">
+                <h2>Audit Log</h2>
+                <button class="btn secondary" onclick="refreshAuditLog()">Refresh</button>
+                <div id="audit-log" class="audit-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global</script> state
+        let currentWorkspace = null;
+
+        // Tauri API
+        const { invoke } = window.__TAURI__.tauri;
+
+        // Event listeners
+        window.__TAURI__.event.listen('workspace-selected', (event) => {
+            handleWorkspaceSelected(event.payload);
+        });
+
+        window.__TAURI__.event.listen('files-listed', (event) => {
+            handleFilesListed(event.payload);
+        });
+
+        window.__TAURI__.event.listen('file-read', (event) => {
+            handleFileRead(event.payload);
+        });
+
+        window.__TAURI__.event.listen('network-fetched', (event) => {
+            handleNetworkFetched(event.payload);
+        });
+
+        // Functions
+        async function selectWorkspace() {
+            try {
+                const result = await invoke('select_workspace');
+                showStatus('Workspace selection initiated', 'info');
+            } catch (error) {
+                showStatus('Failed to select workspace: ' + error, 'error');
+            }
+        }
+
+        async function listDirectory(path) {
+            try {
+                const entries = await invoke('list_directory', { path });
+                showStatus(`Listed ${entries.length} items`, 'success');
+            } catch (error) {
+                showStatus('Failed to list directory: ' + error, 'error');
+            }
+        }
+
+        async function readFile(path) {
+            try {
+                const content = await invoke('read_file', { path });
+                showStatus(`Read file: ${path}`, 'success');
+            } catch (error) {
+                showStatus('Failed to read file: ' + error, 'error');
+            }
+        }
+
+        async function fetchUrl() {
+            const url = document.getElementById('url-input').value;
+            if (!url) {
+                showStatus('Please enter a URL', 'error');
+                return;
+            }
+
+            try {
+                const response = await invoke('fetch_url', { url });
+                showStatus(`Fetched ${url}`, 'success');
+            } catch (error) {
+                showStatus('Failed to fetch URL: ' + error, 'error');
+            }
+        }
+
+        async function refreshAuditLog() {
+            try {
+                const entries = await invoke('get_audit_log');
+                const logElement = document.getElementById('audit-log');
+                logElement.innerHTML = entries.map(entry =>
+                    `<div class="audit-entry">${entry}</div>`
+                ).join('');
+                showStatus('Audit log refreshed', 'success');
+            } catch (error) {
+                showStatus('Failed to refresh audit log: ' + error, 'error');
+            }
+        }
+
+        function handleWorkspaceSelected(data) {
+            currentWorkspace = data;
+            document.getElementById('workspace-info').style.display = 'block';
+            document.getElementById('workspace-path').textContent = data.path;
+            document.getElementById('workspace-id').textContent = data.id;
+            showStatus('Workspace selected successfully', 'success');
+        }
+
+        function handleFilesListed(data) {
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = data.entries.map(entry => {
+                const isDir = !entry.includes('.');
+                return `<li class="${isDir ? 'directory' : ''}" onclick="${isDir ? `listDirectory('${entry}')` : `readFile('${entry}')`}">${entry}</li>`;
+            }).join('');
+        }
+
+        function handleFileRead(data) {
+            document.getElementById('file-content').textContent = data.content;
+        }
+
+        function handleNetworkFetched(data) {
+            document.getElementById('network-response').textContent = data.response;
+        }
+
+        function showStatus(message, type) {
+            // Remove existing status
+            const existing = document.querySelector('.status');
+            if (existing) {
+                existing.remove();
+            }
+
+            // Create new status
+            const status = document.createElement('div');
+            status.className = `status ${type}`;
+            status.textContent = message;
+
+            // Insert at top of main area
+            const main = document.querySelector('.main');
+            main.insertBefore(status, main.firstChild);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (status.parentNode) {
+                    status.remove();
+                }
+            }, 5000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshAuditLog();
+        });
+    </script>
+</body>
+</html>
